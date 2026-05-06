@@ -112,7 +112,7 @@ export default function TaskBoard({
                               <span className="task-card-avatar-placeholder" />
                             )}
 
-                            <span className="task-card-time">
+                            <span className="task-card-time" suppressHydrationWarning>
                               Updated {formatTaskTime(task.updatedAt)}
                             </span>
                           </div>

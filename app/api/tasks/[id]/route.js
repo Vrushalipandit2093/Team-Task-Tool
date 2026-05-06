@@ -51,7 +51,7 @@ export async function PUT(request, { params }) {
 
     const body = await request.json();
 
-    if (body.status) {
+    if (body.status && body.status !== existingTask.status) {
       const canTransition = canTransitionTask(
         existingTask,
         body.status,

@@ -410,7 +410,7 @@ export default function DashboardApp({
             members={members}
             onEditTask={openEditTaskModal}
             tasks={boardTasks}
-            todayDate={getTodayDate()}
+            todayDate={initialDate}
             formatTaskTime={formatTaskTime}
             getInitials={getInitials}
           />

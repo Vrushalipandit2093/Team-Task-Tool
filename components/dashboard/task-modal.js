@@ -12,15 +12,20 @@ import {
   canDeleteTasks,
 } from "../../lib/shared/access";
 
-function getInitialFormState(defaultDate, modalState) {
+function getInitialFormState(defaultDate, modalState, currentUser, accessRole) {
   const task = modalState.task;
+
+  let defaultAssignedDeveloperId = task?.assignedDeveloperId || "";
+  if (!task && accessRole === "developer") {
+    defaultAssignedDeveloperId = currentUser.id;
+  }
 
   return {
     id: task?.id || "",
     taskKey: task?.taskKey || "",
     title: task?.title || "",
     description: task?.description || "",
-    assignedDeveloperId: task?.assignedDeveloperId || "",
+    assignedDeveloperId: defaultAssignedDeveloperId,
     assignedTesterId: task?.assignedTesterId || "",
     deadline: task?.deadline || defaultDate,
     type: task?.type || "Feature",
@@ -39,7 +44,7 @@ function getAllowedStatuses(accessRole, taskStatus) {
 
   if (accessRole === "developer") {
     return STATUS_COLUMNS.filter((status) =>
-      ["pending", "inprogress", "readyfortesting"].includes(status.id)
+      ["pending", "inprogress", "readyfortesting", "reopened"].includes(status.id)
     );
   }
 
@@ -66,7 +71,7 @@ export default function TaskModal({
   testers,
 }) {
   const [formState, setFormState] = useState(
-    getInitialFormState(defaultDate, { task })
+    getInitialFormState(defaultDate, { task }, currentUser, accessRole)
   );
   const [commentText, setCommentText] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -76,7 +81,7 @@ export default function TaskModal({
   const canDelete = canDeleteTasks(accessRole);
   const canClose = canCloseTasks(accessRole);
   const allowedStatuses = getAllowedStatuses(accessRole, task?.status);
-  const canEditStructure = accessRole === "admin" || !isEditing;
+  const canEditStructure = accessRole === "admin" || accessRole === "developer" || !isEditing;
 
   useEffect(() => {
     if (!isOpen) {
@@ -212,7 +217,7 @@ export default function TaskModal({
                 <div className="field">
                   <label>Developer *</label>
                   <select
-                    disabled={!canEditStructure}
+                    disabled={!canEditStructure || accessRole === "developer"}
                     value={formState.assignedDeveloperId}
                     onChange={(event) => updateField("assignedDeveloperId", event.target.value)}
                   >
